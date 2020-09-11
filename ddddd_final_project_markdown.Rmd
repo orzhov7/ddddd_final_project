@@ -1,0 +1,21 @@
+---
+title: "Final Project Markdown"
+date: "9/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Testing Changes
+
+```{r cars}
+summary(cars)
+```
+
+## Removing old code
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
