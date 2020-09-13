@@ -1,6 +1,6 @@
 ---
 title: "ddddd_final_project_markdown"
-author: "Danijela Mojsilovic"
+author: "Jeremy Podczerwinski"
 date: "9/11/2020"
 output: html_document
 ---
