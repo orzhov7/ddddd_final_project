@@ -1,26 +1,21 @@
 ---
 title: "ddddd_final_project_markdown"
-author: "Jeremy Podczerwinski"
-date: "9/11/2020"
+date: "9/13/2020"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r initialize_libraries}
+library(janitor)
+library(skimr)
+library(tidyverse)
 ```
 
-## Test test test
+```{r zip_code_setup}
+# This file was semicolon delimited due to location information.
+# Removed non-Illinois zip codes, trimmed columns for timezone, daylight savings, a geolocation.
 
-```{r cars}
-summary(cars)
+zip_codes <- read.csv("us_zip_codes.csv",sep=';') %>%
+  filter(State == "IL") %>% 
+  select(Zip, City, State, Latitude, Longitude)
+zip_codes
 ```
 
-## New change to code
-
-## new information
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
