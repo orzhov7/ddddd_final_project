@@ -28,8 +28,10 @@ chicago_population_zip_code
 
 
 ```{r list_of_l-stops}
+
 l_stops <- read.csv("list_of_l_stops.csv") %>%
-   select(Station_Name = STATION_NAME, Red_Line = RED, Blue_Line = BLUE, Location) %>%
-  mutate()
+  select(Station_Name = STATION_NAME, Red_Line = RED, Blue_Line = BLUE, Location) %>%
+  mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
+  separate(New_Location, c("Latitude","Longitude"), ",")
 l_stops
 ```
