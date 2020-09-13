@@ -19,3 +19,14 @@ zip_codes <- read.csv("us_zip_codes.csv",sep=';') %>%
 zip_codes
 ```
 
+```{r chicago_population_setup}
+chicago_population_zip_code <- read.csv("chicago_population_by_zip_code.csv") %>%
+  filter(Geography.Type == "ZIP Code") %>% 
+   select(Zip = Geography, Population = Population...Total)
+chicago_population_zip_code
+```
+
+
+```{r chicago_population_setup}
+chicago_population_zip_code
+```
