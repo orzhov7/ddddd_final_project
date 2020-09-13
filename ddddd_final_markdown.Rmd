@@ -20,6 +20,8 @@ zip_codes
 ```
 
 ```{r chicago_population_setup}
+# Comments Here
+
 chicago_population_zip_code <- read.csv("chicago_population_by_zip_code.csv") %>%
   filter(Geography.Type == "ZIP Code") %>% 
    select(Zip = Geography, Population = Population...Total)
@@ -27,11 +29,21 @@ chicago_population_zip_code
 ```
 
 
-```{r list_of_l-stops}
+```{r list_of_l_stops}
+# Comments Here
 
 l_stops <- read.csv("list_of_l_stops.csv") %>%
   select(Station_Name = STATION_NAME, Red_Line = RED, Blue_Line = BLUE, Location) %>%
   mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
   separate(New_Location, c("Latitude","Longitude"), ",")
 l_stops
+```
+
+```{r l_stops_conversion}
+# Comments Here
+
+l_stops_conversion <- l_stops
+l_stops_conversion$Latitude <- as.numeric(l_stops_conversion$Latitude)
+l_stops_conversion$Longitude <- as.numeric(l_stops_conversion$Longitude)
+l_stops_conversion
 ```
