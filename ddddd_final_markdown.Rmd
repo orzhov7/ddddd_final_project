@@ -33,7 +33,7 @@ chicago_population_zip_code
 # Comments Here
 
 l_stops <- read.csv("list_of_l_stops.csv") %>%
-  select(Station_Name = STATION_NAME, Red_Line = RED, Blue_Line = BLUE, Location) %>%
+  select(Station_Name = STATION_NAME, Red_Line = RED, Blue_Line = BLUE, Green_Line = G, Brown_Line = BRN, Purple_Line = P, Purple_Express_Line = Pexp, Yellow_Line = Y, Pink_Line = Pnk, Orange_Line = O, Location) %>%
   mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
   separate(New_Location, c("Latitude","Longitude"), ",")
 l_stops
@@ -47,3 +47,9 @@ l_stops_conversion$Latitude <- as.numeric(l_stops_conversion$Latitude)
 l_stops_conversion$Longitude <- as.numeric(l_stops_conversion$Longitude)
 l_stops_conversion
 ```
+
+```{r l_stops_duplicate_removal}
+unique( l_stops_conversion )
+# Review station stops (change Ran Ryan to Dan Ryan)
+```
+
