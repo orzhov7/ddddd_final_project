@@ -33,7 +33,18 @@ chicago_population_zip_code
 # Comments Here
 
 l_stops <- read.csv("list_of_l_stops.csv") %>%
-  select(Station_Name = STATION_NAME, Red_Line = RED, Blue_Line = BLUE, Green_Line = G, Brown_Line = BRN, Purple_Line = P, Purple_Express_Line = Pexp, Yellow_Line = Y, Pink_Line = Pnk, Orange_Line = O, Location) %>%
+  select(
+      Station_Name = STATION_NAME,
+      Red_Line = RED,
+      Blue_Line = BLUE,
+      Green_Line = G,
+      Brown_Line = BRN,
+      Purple_Line = P,
+      Purple_Express_Line = Pexp,
+      Yellow_Line = Y,
+      Pink_Line = Pnk,
+      Orange_Line = O,
+      Location) %>%
   mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
   separate(New_Location, c("Latitude","Longitude"), ",")
 l_stops
@@ -43,13 +54,31 @@ l_stops
 # Comments Here
 
 l_stops_conversion <- l_stops
+l_stops_conversion$Red_Line <- as.logical(l_stops_conversion$Red_Line)
+l_stops_conversion$Blue_Line <- as.logical(l_stops_conversion$Blue_Line)
+l_stops_conversion$Green_Line <- as.logical(l_stops_conversion$Green_Line)
+l_stops_conversion$Brown_Line <- as.logical(l_stops_conversion$Brown_Line)
+l_stops_conversion$Purple_Line <- as.logical(l_stops_conversion$Purple_Line)
+l_stops_conversion$Purple_Express_Line <- as.logical(l_stops_conversion$Purple_Express_Line)
+l_stops_conversion$Yellow_Line <- as.logical(l_stops_conversion$Yellow_Line)
+l_stops_conversion$Pink_Line <- as.logical(l_stops_conversion$Pink_Line)
+l_stops_conversion$Orange_Line <- as.logical(l_stops_conversion$Orange_Line)
 l_stops_conversion$Latitude <- as.numeric(l_stops_conversion$Latitude)
 l_stops_conversion$Longitude <- as.numeric(l_stops_conversion$Longitude)
 l_stops_conversion
 ```
 
 ```{r l_stops_duplicate_removal}
-unique( l_stops_conversion )
-# Review station stops (change Ran Ryan to Dan Ryan)
+l_stops_conversion_2 <- group_by(l_stops_conversion, Station_Name, Latitude, Longitude) %>% 
+  summarise(Red_Line = any(Red_Line),
+            Blue_Line = any(Blue_Line),
+            Green_Line = any(Green_Line),
+            Brown_Line = any(Brown_Line),
+            Purple_Line = any(Purple_Line),
+            Purple_Express_Line = any(Purple_Express_Line),
+            Yellow_Line = any(Yellow_Line),
+            Pink_Line = any(Pink_Line),
+            Orange_Line = any(Orange_Line))
+l_stops_conversion_2
 ```
 
