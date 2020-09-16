@@ -82,4 +82,15 @@ l_stops_conversion_2 <- group_by(l_stops_conversion, Station_Name, Latitude, Lon
             Orange_Line = any(Orange_Line))
 l_stops_conversion_2
 ```
+```{r}
+daily_entries <- read.csv("daily_station_entries_2017_2019.csv") %>% 
+  select(
+      Map_ID = station_id,
+      date,
+      rides)
+      
+```
+
+
+```
 
