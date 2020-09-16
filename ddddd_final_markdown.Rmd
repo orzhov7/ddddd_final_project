@@ -1,6 +1,6 @@
 ---
 title: "ddddd_final_project_markdown"
-date: "9/13/2020"
+date: "9/16/2020"
 output: html_document
 ---
 ```{r initialize_libraries}
@@ -11,7 +11,7 @@ library(tidyverse)
 
 ```{r zip_code_setup}
 # This file was semicolon delimited due to location information.
-# Removed non-Illinois zip codes, trimmed columns for timezone, daylight savings, a geolocation.
+# Removed non-Illinois zip codes, trimmed columns for timezone, daylight savings, and geolocation.
 
 zip_codes <- read.csv("us_zip_codes.csv",sep=';') %>%
   filter(State == "IL") %>% 
@@ -20,39 +20,49 @@ zip_codes
 ```
 
 ```{r chicago_population_setup}
-# Comments Here
+# This data source contains many empty columns we don't need, plus a full Chicago breakout by age.
+# Neither of above is needed. Only need Zip and Population numbers. This data is from 2018.
 
 chicago_population_zip_code <- read.csv("chicago_population_by_zip_code.csv") %>%
-  filter(Geography.Type == "ZIP Code") %>% 
+  filter(Geography.Type == "ZIP Code") %>%
    select(Zip = Geography, Population = Population...Total)
+
+# Align Zip column data type with zip code list
+chicago_population_zip_code$Zip <- as.integer(chicago_population_zip_code$Zip)
 chicago_population_zip_code
 ```
 
 
 ```{r list_of_l_stops}
-# Comments Here
+# This data contains station location and additional information about every L stop. Cleaning this data will require a few steps to get into the shape we need.
 
 l_stops <- read.csv("list_of_l_stops.csv") %>%
+  # Location string is made up of ("Latitude", "Longitude") so we need to first remove the parenthesis.
+  mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
+  # We found an naming error in the data, this line replaces that error.
+  mutate(Station_Name = ifelse(
+    STATION_NAME == "95th/Ran Ryan", "95th/Dan Ryan", STATION_NAME)) %>%
+  # We want to rename some station info for readability, and remove unneeded columns
   select(
+      Map_ID = MAP_ID,
       Station_Name = STATION_NAME,
       Red_Line = RED,
       Blue_Line = BLUE,
       Green_Line = G,
       Brown_Line = BRN,
       Purple_Line = P,
-      Purple_Express_Line = Pexp,
+      Purple_Line_Express = Pexp,
       Yellow_Line = Y,
       Pink_Line = Pnk,
       Orange_Line = O,
-      Location) %>%
-  mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
-  mutate(Station_Name = ifelse(
-    Station_Name == "95th/Ran Ryan", "95th/Dan Ryan", Station_Name)) %>%
+      New_Location) %>%
+  # Finally, separate the Latitude and Longitude columns. More converting will be needed below.
   separate(New_Location, c("Latitude","Longitude"), ",")
 l_stops
 ```
+
 ```{r l_stops_conversion}
-# Comments Here
+# A lot of the above L Stop data was not in the proper form, we need logicals or doubles for line information and Latitude/Longitude. This code fulfills that need.
 
 l_stops_conversion <- l_stops
 l_stops_conversion$Red_Line <- as.logical(l_stops_conversion$Red_Line)
@@ -60,7 +70,7 @@ l_stops_conversion$Blue_Line <- as.logical(l_stops_conversion$Blue_Line)
 l_stops_conversion$Green_Line <- as.logical(l_stops_conversion$Green_Line)
 l_stops_conversion$Brown_Line <- as.logical(l_stops_conversion$Brown_Line)
 l_stops_conversion$Purple_Line <- as.logical(l_stops_conversion$Purple_Line)
-l_stops_conversion$Purple_Express_Line <- as.logical(l_stops_conversion$Purple_Express_Line)
+l_stops_conversion$Purple_Line_Express <- as.logical(l_stops_conversion$Purple_Line_Express)
 l_stops_conversion$Yellow_Line <- as.logical(l_stops_conversion$Yellow_Line)
 l_stops_conversion$Pink_Line <- as.logical(l_stops_conversion$Pink_Line)
 l_stops_conversion$Orange_Line <- as.logical(l_stops_conversion$Orange_Line)
@@ -70,27 +80,32 @@ l_stops_conversion
 ```
 
 ```{r l_stops_duplicate_removal}
-l_stops_conversion_2 <- group_by(l_stops_conversion, Station_Name, Latitude, Longitude) %>% 
+# The above code and data frame contain some duplicates, which we will need to collapse into single rows. What's happening here is that one stop could have split access for lines based on direction. We're not concerned with N/S or E/W, just what's available at the stop, when compared to the entry data.
+
+l_stops_conversion_2 <- group_by(l_stops_conversion, Map_ID, Station_Name, Latitude, Longitude) %>% 
   summarise(Red_Line = any(Red_Line),
             Blue_Line = any(Blue_Line),
             Green_Line = any(Green_Line),
             Brown_Line = any(Brown_Line),
             Purple_Line = any(Purple_Line),
-            Purple_Express_Line = any(Purple_Express_Line),
+            Purple_Line_Express = any(Purple_Line_Express),
             Yellow_Line = any(Yellow_Line),
             Pink_Line = any(Pink_Line),
-            Orange_Line = any(Orange_Line))
+            Orange_Line = any(Orange_Line),
+            )
 l_stops_conversion_2
 ```
-```{r}
+
+
+```{r daily_entry_creation}
+# This data was prepped beforehand to only include 2017-2019 ride entries. Full data set contained from 2000 and up, was too large to upload for sharing with team, trimmed data first using another set of R code.
+
 daily_entries <- read.csv("daily_station_entries_2017_2019.csv") %>% 
   select(
       Map_ID = station_id,
-      date,
-      rides)
-      
-```
-
-
+      Ride_Date = date,
+      Rides_Taken = rides)
+daily_entries$Ride_Date <- as.Date(daily_entries$Ride_Date)
+daily_entries
 ```
 
