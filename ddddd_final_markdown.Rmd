@@ -46,10 +46,11 @@ l_stops <- read.csv("list_of_l_stops.csv") %>%
       Orange_Line = O,
       Location) %>%
   mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
+  mutate(Station_Name = ifelse(
+    Station_Name == "95th/Ran Ryan", "95th/Dan Ryan", Station_Name)) %>%
   separate(New_Location, c("Latitude","Longitude"), ",")
 l_stops
 ```
-
 ```{r l_stops_conversion}
 # Comments Here
 
