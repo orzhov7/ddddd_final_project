@@ -2,7 +2,7 @@ CREATE SCHEMA final_project_schema;
 
 USE final_project_schema;
 
-CREATE TABLE l_stop (
+CREATE TABLE l_stops (
 
   Map_ID INT NOT NULL,
 

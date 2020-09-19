@@ -200,7 +200,6 @@ chicago_population_zip_code %>%
   )
 ```
 
-
 ```{r push_daily_entries_to_sql}
 # Push daily_entries data to MySQL DB
 
@@ -239,6 +238,7 @@ line_group %>%
     overwrite = TRUE
   )
 ```
+
 ```{r push_l_stops_final_to_sql}
 # Push l_stops_final data to MySQL DB
 
@@ -251,13 +251,14 @@ l_stops_final %>%
     # connection object
     conn = con_final_project,
     # table name
-    name = "l_stops_final",
+    name = "l_stops",
     # the dataframe
     value = .,
     # overwrite the table; we could also use append = TRUE
     overwrite = TRUE
   )
 ```
+
 ```{r push_zip_codes_to_sql}
 # Push zip_codes data to MySQL DB
 
