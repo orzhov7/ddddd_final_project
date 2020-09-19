@@ -240,9 +240,9 @@ line_group %>%
   )
 ```
 ```{r push_l_stop_to_sql}
-# Push l_stop data to MySQL DB
+# Push l_stops data to MySQL DB
 
-l_stop %>%
+l_stops_final %>%
   # Note: the . in the `dbWriteTable` call represents the dataframe
   # Normally %>% makes the data the first argument of the next function call
   # But in this case the first argument to dbWritetable is `conn`
@@ -251,7 +251,7 @@ l_stop %>%
     # connection object
     conn = con_final_project,
     # table name
-    name = "l_stop",
+    name = "l_stops",
     # the dataframe
     value = .,
     # overwrite the table; we could also use append = TRUE
