@@ -200,3 +200,80 @@ chicago_population_zip_code %>%
   )
 ```
 
+
+```{r push_daily_entries_to_sql}
+# Push daily_entries data to MySQL DB
+
+daily_entries %>%
+  # Note: the . in the `dbWriteTable` call represents the dataframe
+  # Normally %>% makes the data the first argument of the next function call
+  # But in this case the first argument to dbWritetable is `conn`
+  # So we defer the data to the third argument in `dbWritetable` by using the .
+  dbWriteTable(
+    # connection object
+    conn = con_final_project,
+    # table name
+    name = "daily_entries",
+    # the dataframe
+    value = .,
+    # overwrite the table; we could also use append = TRUE
+    overwrite = TRUE
+  )
+```
+```{r push_line_group_to_sql}
+# Push line_group data to MySQL DB
+
+line_group %>%
+  # Note: the . in the `dbWriteTable` call represents the dataframe
+  # Normally %>% makes the data the first argument of the next function call
+  # But in this case the first argument to dbWritetable is `conn`
+  # So we defer the data to the third argument in `dbWritetable` by using the .
+  dbWriteTable(
+    # connection object
+    conn = con_final_project,
+    # table name
+    name = "line_group",
+    # the dataframe
+    value = .,
+    # overwrite the table; we could also use append = TRUE
+    overwrite = TRUE
+  )
+```
+```{r push_l_stop_to_sql}
+# Push l_stop data to MySQL DB
+
+l_stop %>%
+  # Note: the . in the `dbWriteTable` call represents the dataframe
+  # Normally %>% makes the data the first argument of the next function call
+  # But in this case the first argument to dbWritetable is `conn`
+  # So we defer the data to the third argument in `dbWritetable` by using the .
+  dbWriteTable(
+    # connection object
+    conn = con_final_project,
+    # table name
+    name = "l_stop",
+    # the dataframe
+    value = .,
+    # overwrite the table; we could also use append = TRUE
+    overwrite = TRUE
+  )
+```
+```{r push_zip_codes_to_sql}
+# Push zip_codes data to MySQL DB
+
+zip_codes %>%
+  # Note: the . in the `dbWriteTable` call represents the dataframe
+  # Normally %>% makes the data the first argument of the next function call
+  # But in this case the first argument to dbWritetable is `conn`
+  # So we defer the data to the third argument in `dbWritetable` by using the .
+  dbWriteTable(
+    # connection object
+    conn = con_final_project,
+    # table name
+    name = "zip_codes",
+    # the dataframe
+    value = .,
+    # overwrite the table; we could also use append = TRUE
+    overwrite = TRUE
+  )
+```
