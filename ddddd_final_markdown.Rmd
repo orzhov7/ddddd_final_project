@@ -95,6 +95,25 @@ l_stops_conversion_2 <- group_by(l_stops_conversion, Map_ID, Station_Name, Latit
             )
 l_stops_conversion_2
 ```
+```{r create_line_group}
+# Derive list of train stops by Map_ID for additional table.
+
+line_group <- l_stops_conversion_2 %>% 
+  ungroup() %>% 
+  gather(Line_Name, Part_of_Line, -Map_ID, -Station_Name, -Latitude, -Longitude) %>% 
+  filter(Part_of_Line == TRUE) %>% 
+  select(Map_ID, Line_Name) %>% 
+  arrange(Map_ID)
+line_group
+```
+```{r trim_l_stops}
+# Remove station information from stop location data.
+
+l_stops_final <- l_stops_conversion_2 %>%
+  ungroup() %>%
+  select(Map_ID, Station_Name, Latitude, Longitude)
+l_stops_final
+```
 
 
 ```{r daily_entry_creation}
