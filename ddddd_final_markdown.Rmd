@@ -161,8 +161,16 @@ con_final_project <- dbConnect(
     service = service_mysql,
     username = key_list(service = service_mysql)$username
   ),
-  dbname = "Final_Project_Schema",
+  dbname = "final_project_schema",
   host = "localhost"
 )
+```
+
+```{sql connection=con_final_project}
+USE final_project_schema
+```
+
+```{sql connection=con_final_project}
+SHOW TABLES
 ```
 
