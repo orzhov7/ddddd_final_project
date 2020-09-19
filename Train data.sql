@@ -1,69 +1,69 @@
-CREATE TABLE `l_stop` (
+CREATE SCHEMA final_project_schema;
 
-  `Map_ID` INT(20) NOT NULL,
+USE final_project_schema;
 
-  `Station_Name` VARCHAR(50) NOT NULL,
+CREATE TABLE l_stop (
 
-  `Latitude` decimal(50) NOT NULL,
+  Map_ID INT NOT NULL,
 
-  `Longitude` decimal(50) NOT NULL,
+  Station_Name VARCHAR(50) NOT NULL,
+
+  Latitude decimal(50) NOT NULL,
+
+  Longitude decimal(50) NOT NULL,
   
-  PRIMARY KEY (`Map_ID`)
+  PRIMARY KEY (Map_ID)
 
 ) ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-CREATE TABLE `zip_codes` (
+CREATE TABLE zip_codes (
 
-  `Zip` INT(5) NOT NULL,
+  Zip INT NOT NULL,
 
-  `City` VARCHAR(7) NOT NULL,
+  City VARCHAR(7) NOT NULL,
   
-   `State` VARCHAR(10) NOT NULL,
+  State VARCHAR(10) NOT NULL,
   
-  `Latitude` decimal(50) NOT NULL,
+  Latitude decimal(50) NOT NULL,
 
-  `Longitude` decimal(50) NOT NULL,
+  Longitude decimal(50) NOT NULL,
   
-  PRIMARY KEY (`Zip`)
+  PRIMARY KEY (Zip)
 
 ) ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-CREATE TABLE `chicago_population` (
+CREATE TABLE chicago_population (
 
-  `Zip` INT(5) NOT NULL,
+  Zip INT NOT NULL,
 
-  `Population` INT(20) NOT NULL,
+  Population INT NOT NULL,
   
-  PRIMARY KEY (`Zip`)
+  PRIMARY KEY (Zip)
 
 ) ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-CREATE TABLE `daily_entries` (
+CREATE TABLE daily_entries (
 
-  `Map_ID` INT(20) NOT NULL,
+  Map_ID INT NOT NULL,
 
-  `Ride_Date` INT(50) NOT NULL,
+  Ride_Date INT NOT NULL,
 
-  `Rides_Taken` INT(50) NOT NULL,
+  Rides_Taken INT NOT NULL,
 
-  PRIMARY KEY (`Map_ID`)
+  PRIMARY KEY (Map_ID)
 
 ) ENGINE=INNODB DEFAULT CHARSET=LATIN1;
 
 
-CREATE TABLE `line_group` (
+CREATE TABLE line_group (
 
-  `Map_ID` INT(20) NOT NULL,
+  Map_ID INT NOT NULL,
 
-  `Line_Name` VARCHAR(50) NOT NULL,
+  Line_Name VARCHAR(50) NOT NULL,
   
-  PRIMARY KEY (`Map_ID`, `Line_Name`)
+  PRIMARY KEY (Map_ID, Line_Name)
 
 ) ENGINE=INNODB DEFAULT CHARSET=LATIN1;
-
-
-
-
