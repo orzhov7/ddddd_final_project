@@ -173,4 +173,30 @@ USE final_project_schema
 ```{sql connection=con_final_project}
 SHOW TABLES
 ```
+```{sql connection=con_final_project}
+SHOW VARIABLES LIKE 'local_infile';
+```
+```{sql connection=con_final_project}
+SET GLOBAL local_infile = 1;
+```
+
+```{r push_population_to_sql}
+# Push population data to MySQL DB
+
+chicago_population_zip_code %>%
+  # Note: the . in the `dbWriteTable` call represents the dataframe
+  # Normally %>% makes the data the first argument of the next function call
+  # But in this case the first argument to dbWritetable is `conn`
+  # So we defer the data to the third argument in `dbWritetable` by using the .
+  dbWriteTable(
+    # connection object
+    conn = con_final_project,
+    # table name
+    name = "chicago_population",
+    # the dataframe
+    value = .,
+    # overwrite the table; we could also use append = TRUE
+    overwrite = TRUE
+  )
+```
 
