@@ -128,3 +128,41 @@ daily_entries$Ride_Date <- as.Date(daily_entries$Ride_Date)
 daily_entries
 ```
 
+Begin Writing tables to MySQL!
+
+```{r mysql_library_setup}
+# Setup libraries for DB connection.
+
+library(RMySQL)
+library(keyring)
+library(odbc)
+```
+
+```{r mysql_connection_setup_1}
+# Setup connection variables.
+
+service_mysql <- "r-mysql"
+username_mysql <- "root"
+```
+
+```{r mysql_connection_setup_2, eval=FALSE}
+# Setup login information.
+
+keyring::key_set(service = service_mysql, username = username_mysql)
+```
+
+```{r mysql_connection_setup_3}
+# Team created database with name "Final_Project_Schema"
+
+con_final_project <- dbConnect(
+  MySQL(),
+  user = key_list(service = service_mysql)$username,
+  password = key_get(
+    service = service_mysql,
+    username = key_list(service = service_mysql)$username
+  ),
+  dbname = "Final_Project_Schema",
+  host = "localhost"
+)
+```
+
