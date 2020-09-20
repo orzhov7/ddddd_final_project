@@ -201,6 +201,7 @@ chicago_population_zip_code %>%
   )
 ```
 
+
 ```{r push_daily_entries_to_sql}
 # Push daily_entries data to MySQL DB
 
@@ -239,9 +240,8 @@ line_group %>%
     overwrite = TRUE
   )
 ```
-
-```{r push_l_stops_final_to_sql}
-# Push l_stops_final data to MySQL DB
+```{r push_l_stop_to_sql}
+# Push l_stops data to MySQL DB
 
 l_stops_final %>%
   # Note: the . in the `dbWriteTable` call represents the dataframe
@@ -259,7 +259,6 @@ l_stops_final %>%
     overwrite = TRUE
   )
 ```
-
 ```{r push_zip_codes_to_sql}
 # Push zip_codes data to MySQL DB
 
@@ -319,4 +318,3 @@ stops_and_zips_2 <- stops_and_zips %>%
   mutate(distance = acos(sin(Stop_Latitude*pi/180)*sin(Zip_Latitude*pi/180) + cos(Stop_Latitude*pi/180)*cos(Zip_Latitude*pi/180) * cos(Zip_Longitude*pi/180 - Stop_Longitude*pi/180)) * 6371)
 stops_and_zips_2
 ```
-
