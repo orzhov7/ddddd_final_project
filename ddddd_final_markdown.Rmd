@@ -279,21 +279,12 @@ zip_codes %>%
   )
 ```
 
-```{sql connection=con_final_project}
-SELECT
-  l_stops.Map_ID,
-  l_stops.Latitude AS Stop_Latitude,
-  l_stops.Longitude AS Stop_Longitude,
-  zip_codes.Zip,
-  zip_codes.Latitude AS Zip_Latitude,
-  zip_codes.Longitude AS Zip_Longitude
-FROM l_stops
-CROSS JOIN zip_codes
-WHERE zip_codes.City = 'Chicago'
-```
 
+```{r create_mapping_query}
+# Using data stored in MySQL to create a mapping table for distance from zip codes to each station.
 
-```{r}
+# Feeding SQL query to make a data frame where robust calculations can be done.
+
 stops_and_zips_query <- "SELECT
   l_stops.Map_ID,
   l_stops.Longitude AS Stop_Longitude,
@@ -305,16 +296,48 @@ FROM l_stops
 CROSS JOIN zip_codes
 WHERE zip_codes.City = 'Chicago'"
 
+# Loading query into data frame.
+
 stops_and_zips <- dbGetQuery(con_final_project, stops_and_zips_query) %>%
   as_tibble()
 stops_and_zips
 ```
 
-```{r}
+```{r calculate_distance}
 
-#acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2) * cos(long2-long1)) * R)
+# The below code is known as the Spherical Law of Cosines which calculates the shortest distance between two points on a sphere. We are assuming the Earth is a perfect sphere, which is fine given that most distances are under a few miles. Larger distances would need to take additional factors into account.
+# This code assumes that the Latitudes and Longitudes are in radians and the output is in kilometers. We will apply conversion factors as well for our audience.
+# acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2) * cos(long2-long1)) * R)
+
+# Factor to convert degrees to radians
+convert_radians <- pi/180
+# Earth radius in km
+earth_radius <- 6371
+# Factor to convert to miles
+convert_miles <- .6213712
 
 stops_and_zips_2 <- stops_and_zips %>% 
-  mutate(distance = acos(sin(Stop_Latitude*pi/180)*sin(Zip_Latitude*pi/180) + cos(Stop_Latitude*pi/180)*cos(Zip_Latitude*pi/180) * cos(Zip_Longitude*pi/180 - Stop_Longitude*pi/180)) * 6371)
+  mutate(Distance = convert_miles*acos(sin(Stop_Latitude*convert_radians)*sin(Zip_Latitude*convert_radians) + cos(Stop_Latitude*convert_radians)*cos(Zip_Latitude*convert_radians) * cos(Zip_Longitude*convert_radians - Stop_Longitude*convert_radians)) * earth_radius) %>% 
+  select(Map_ID, Zip, Distance)
 stops_and_zips_2
+```
+
+```{r push_mapping_to_sql}
+# Push mapping data to MySQL DB
+
+stops_and_zips_2 %>%
+  # Note: the . in the `dbWriteTable` call represents the dataframe
+  # Normally %>% makes the data the first argument of the next function call
+  # But in this case the first argument to dbWritetable is `conn`
+  # So we defer the data to the third argument in `dbWritetable` by using the .
+  dbWriteTable(
+    # connection object
+    conn = con_final_project,
+    # table name
+    name = "stations_to_zips",
+    # the dataframe
+    value = .,
+    # overwrite the table; we could also use append = TRUE
+    overwrite = TRUE
+  )
 ```
