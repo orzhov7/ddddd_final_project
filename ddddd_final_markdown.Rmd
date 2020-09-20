@@ -40,12 +40,11 @@ l_stops <- read.csv("list_of_l_stops.csv") %>%
   # Location string is made up of ("Latitude", "Longitude") so we need to first remove the parenthesis.
   mutate(New_Location = substring(Location, 2, nchar(Location) - 1)) %>%
   # We found an naming error in the data, this line replaces that error.
-  mutate(Station_Name = ifelse(
-    STATION_NAME == "95th/Ran Ryan", "95th/Dan Ryan", STATION_NAME)) %>%
+  mutate(Station_Name = ifelse(STATION_NAME == "95th/Ran Ryan", "95th/Dan Ryan", STATION_NAME)) %>%
   # We want to rename some station info for readability, and remove unneeded columns
   select(
       Map_ID = MAP_ID,
-      Station_Name = STATION_NAME,
+      Station_Name,
       Red_Line = RED,
       Blue_Line = BLUE,
       Green_Line = G,
@@ -82,7 +81,7 @@ l_stops_conversion
 ```{r l_stops_duplicate_removal}
 # The above code and data frame contain some duplicates, which we will need to collapse into single rows. What's happening here is that one stop could have split access for lines based on direction. We're not concerned with N/S or E/W, just what's available at the stop, when compared to the entry data.
 
-l_stops_conversion_2 <- group_by(l_stops_conversion, Map_ID, Station_Name, Latitude, Longitude) %>% 
+l_stops_conversion_2 <- group_by(l_stops_conversion, Map_ID, Station_Name) %>% 
   summarise(Red_Line = any(Red_Line),
             Blue_Line = any(Blue_Line),
             Green_Line = any(Green_Line),
@@ -92,6 +91,8 @@ l_stops_conversion_2 <- group_by(l_stops_conversion, Map_ID, Station_Name, Latit
             Yellow_Line = any(Yellow_Line),
             Pink_Line = any(Pink_Line),
             Orange_Line = any(Orange_Line),
+            Latitude = max(Latitude),
+            Longitude = max(Longitude)
             )
 l_stops_conversion_2
 ```
@@ -278,3 +279,44 @@ zip_codes %>%
     overwrite = TRUE
   )
 ```
+
+```{sql connection=con_final_project}
+SELECT
+  l_stops.Map_ID,
+  l_stops.Latitude AS Stop_Latitude,
+  l_stops.Longitude AS Stop_Longitude,
+  zip_codes.Zip,
+  zip_codes.Latitude AS Zip_Latitude,
+  zip_codes.Longitude AS Zip_Longitude
+FROM l_stops
+CROSS JOIN zip_codes
+WHERE zip_codes.City = 'Chicago'
+```
+
+
+```{r}
+stops_and_zips_query <- "SELECT
+  l_stops.Map_ID,
+  l_stops.Longitude AS Stop_Longitude,
+  l_stops.Latitude AS Stop_Latitude,
+  zip_codes.Zip,
+  zip_codes.Longitude AS Zip_Longitude,
+  zip_codes.Latitude AS Zip_Latitude
+FROM l_stops
+CROSS JOIN zip_codes
+WHERE zip_codes.City = 'Chicago'"
+
+stops_and_zips <- dbGetQuery(con_final_project, stops_and_zips_query) %>%
+  as_tibble()
+stops_and_zips
+```
+
+```{r}
+
+#acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2) * cos(long2-long1)) * R)
+
+stops_and_zips_2 <- stops_and_zips %>% 
+  mutate(distance = acos(sin(Stop_Latitude*pi/180)*sin(Zip_Latitude*pi/180) + cos(Stop_Latitude*pi/180)*cos(Zip_Latitude*pi/180) * cos(Zip_Longitude*pi/180 - Stop_Longitude*pi/180)) * 6371)
+stops_and_zips_2
+```
+
