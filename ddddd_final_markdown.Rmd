@@ -15,9 +15,13 @@ library(tidyverse)
 
 zip_codes <- read.csv("us_zip_codes.csv",sep=';') %>%
   filter(State == "IL") %>% 
-  select(Zip, City, State, Latitude, Longitude)
+  select(Zip, City, State, Latitude, Longitude) %>% 
+  add_row(Zip = 60642, City = "Chicago", State = "IL", Latitude = 41.9036545, Longitude = -87.6577537)
+
+# We found that the dataset was not complete for the City of Chicago, one zip code, for Goose Island, was missing. Adding it here.
 zip_codes
 ```
+
 
 ```{r chicago_population_setup}
 # This data source contains many empty columns we don't need, plus a full Chicago breakout by age.
