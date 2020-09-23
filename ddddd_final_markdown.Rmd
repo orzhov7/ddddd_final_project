@@ -1,13 +1,30 @@
 ---
 title: "ddddd_final_project_markdown"
-date: "9/16/2020"
-output: html_document
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: show
+    theme: united
+    df_print: paged
+    highlight: textmate
+    toc: true
+    toc_float: true
+editor_options:
+  chunk_output_type: inline
+always_allow_html: yes
 ---
+
+# Data Cleaning and Prep
+
+### Setup Libraries for Data Cleaning
+
 ```{r initialize_libraries}
 library(janitor)
 library(skimr)
 library(tidyverse)
 ```
+
+### 1) Zip Codes and Latitude/Longitude
 
 ```{r zip_code_setup}
 # This file was semicolon delimited due to location information.
@@ -22,6 +39,7 @@ zip_codes <- read.csv("us_zip_codes.csv",sep=';') %>%
 zip_codes
 ```
 
+### 2) Chicago Population by Zip Code
 
 ```{r chicago_population_setup}
 # This data source contains many empty columns we don't need, plus a full Chicago breakout by age.
@@ -36,6 +54,10 @@ chicago_population_zip_code$Zip <- as.integer(chicago_population_zip_code$Zip)
 chicago_population_zip_code
 ```
 
+
+### 3) List of L Stops and Corresponding Lines
+
+First, we need to put the data in a more readable form, then remove columns that are not needed for our analysis.
 
 ```{r list_of_l_stops}
 # This data contains station location and additional information about every L stop. Cleaning this data will require a few steps to get into the shape we need.
@@ -64,6 +86,8 @@ l_stops <- read.csv("list_of_l_stops.csv") %>%
 l_stops
 ```
 
+After that, we need to convert some of the data to the proper type, numeric or logical.
+
 ```{r l_stops_conversion}
 # A lot of the above L Stop data was not in the proper form, we need logicals or doubles for line information and Latitude/Longitude. This code fulfills that need.
 
@@ -81,6 +105,8 @@ l_stops_conversion$Latitude <- as.numeric(l_stops_conversion$Latitude)
 l_stops_conversion$Longitude <- as.numeric(l_stops_conversion$Longitude)
 l_stops_conversion
 ```
+
+We have to remove some identified duplicates.
 
 ```{r l_stops_duplicate_removal}
 # The above code and data frame contain some duplicates, which we will need to collapse into single rows. What's happening here is that one stop could have split access for lines based on direction. We're not concerned with N/S or E/W, just what's available at the stop, when compared to the entry data.
@@ -100,6 +126,9 @@ l_stops_conversion_2 <- group_by(l_stops_conversion, Map_ID, Station_Name) %>%
             )
 l_stops_conversion_2
 ```
+
+Finally, we split this data into two for further normalization.
+
 ```{r create_line_group}
 # Derive list of train stops by Map_ID for additional table.
 
@@ -111,6 +140,7 @@ line_group <- l_stops_conversion_2 %>%
   arrange(Map_ID)
 line_group
 ```
+
 ```{r trim_l_stops}
 # Remove station information from stop location data.
 
@@ -120,6 +150,8 @@ l_stops_final <- l_stops_conversion_2 %>%
 l_stops_final
 ```
 
+
+### 4) Daily Entries by Station
 
 ```{r daily_entry_creation}
 # This data was prepped beforehand to only include 2017-2019 ride entries. Full data set contained from 2000 and up, was too large to upload for sharing with team, trimmed data first using another set of R code.
@@ -133,7 +165,9 @@ daily_entries$Ride_Date <- as.Date(daily_entries$Ride_Date)
 daily_entries
 ```
 
-Begin Writing tables to MySQL!
+# Data Loading into MySQL
+
+### 1) Setup Connection
 
 ```{r mysql_library_setup}
 # Setup libraries for DB connection.
@@ -171,6 +205,8 @@ con_final_project <- dbConnect(
 )
 ```
 
+### 2) Test Connection
+
 ```{sql connection=con_final_project}
 USE final_project_schema
 ```
@@ -178,12 +214,19 @@ USE final_project_schema
 ```{sql connection=con_final_project}
 SHOW TABLES
 ```
+
+Setup ability to load data.
+
 ```{sql connection=con_final_project}
 SHOW VARIABLES LIKE 'local_infile';
 ```
 ```{sql connection=con_final_project}
 SET GLOBAL local_infile = 1;
 ```
+
+### 3) Push the Data
+
+Population by Zip Code
 
 ```{r push_population_to_sql}
 # Push population data to MySQL DB
@@ -205,6 +248,7 @@ chicago_population_zip_code %>%
   )
 ```
 
+Daily Station Entries
 
 ```{r push_daily_entries_to_sql}
 # Push daily_entries data to MySQL DB
@@ -225,6 +269,9 @@ daily_entries %>%
     overwrite = TRUE
   )
 ```
+
+Mapping of Stations to L Lines
+
 ```{r push_line_group_to_sql}
 # Push line_group data to MySQL DB
 
@@ -244,6 +291,9 @@ line_group %>%
     overwrite = TRUE
   )
 ```
+
+List of L Stops
+
 ```{r push_l_stop_to_sql}
 # Push l_stops data to MySQL DB
 
@@ -263,6 +313,9 @@ l_stops_final %>%
     overwrite = TRUE
   )
 ```
+
+Zip Code Latitudes and Longitudes
+
 ```{r push_zip_codes_to_sql}
 # Push zip_codes data to MySQL DB
 
@@ -283,6 +336,9 @@ zip_codes %>%
   )
 ```
 
+# Distance from Stops to Zip Code Calculation
+
+### 1) Pull data back from MySQL into dataframe via query.
 
 ```{r create_mapping_query}
 # Using data stored in MySQL to create a mapping table for distance from zip codes to each station.
@@ -307,6 +363,9 @@ stops_and_zips <- dbGetQuery(con_final_project, stops_and_zips_query) %>%
 stops_and_zips
 ```
 
+
+### 2) Use R's calculating prowess to map distances between stops and zip codes.
+
 ```{r calculate_distance}
 
 # The below code is known as the Spherical Law of Cosines which calculates the shortest distance between two points on a sphere. We are assuming the Earth is a perfect sphere, which is fine given that most distances are under a few miles. Larger distances would need to take additional factors into account.
@@ -325,6 +384,8 @@ stops_and_zips_2 <- stops_and_zips %>%
   select(Map_ID, Zip, Distance)
 stops_and_zips_2
 ```
+
+### 3) Add mapping table back to MySQL for further query usage.
 
 ```{r push_mapping_to_sql}
 # Push mapping data to MySQL DB
